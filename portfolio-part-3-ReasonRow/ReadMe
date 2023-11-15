@@ -1,0 +1,30 @@
+Analysis:
+
+The presented work establishes a train and test model for both the logistic regression model and KNN model as they are essential components in machine learning. 
+Moreover, it helps evaluate the given model performance and further lead to predicting and checking how accurate the data is. 
+The given data was split as 90% of the data was being trained while 10% of the data was tested. The train and test values can be at
+any range but should be added to the value of one.
+
+Exploration:
+
+• Cleansing the data was the first step by checking if any null values were presented and removing any missing values
+• Converting categorical values like gender, review, category and item to numerical values using 
+  Ordencoder as machine learning cannot work with categorical values like string values.
+• While evaluating the data, a correlation has been studied between the assigned converted numerical values and rating to see the strength of the 
+  relationship between the converted value and rating.
+• Splitting the dataset once for both logistic regression and KNN models which helps as it helps evaluate the performance of the given model.
+• Training the logistic regression model helps further predict the observed value and find the best weights for the regression model
+• In this case, training KNN models is beneficial as labelled data can be expensive and very difficult to obtain.
+  KNN can achieve accurate data with given prediction models
+• The next step after splitting and training the models was to predict the data and figure out the accuracy. The accuracy goes up to the value of 1 meaning
+  there are no errors in the data.
+• Once receiving the accuracy value, tuning the hyper-parameter K in KNN was the next step to check how much the accuracy value has changed. 
+  When tuning the K value in KNN, there was barely any difference with the accuracy value which was just 0.01.
+• The final step was to visualise the data which makes it easier to understand and to highlight common trends.
+  The graph gave a clear representation of the increase in K value(x-axix) led to an increase of errors for the trained model.
+  while the testing model showed that as the K value increases, error decreases and over time the graph begins to flatten out.
+
+Conclusion: WHile analysing and exploring the dataset, it helped figure out and tackle the given tasks with the
+logis regression and KNN model. Furthermore, this lead to the understanding of the predicted data and how accurate it was including after the K in KNN was tuned.
+
+
