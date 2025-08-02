@@ -1,30 +1,23 @@
 Analysis:
 
-The presented work establishes a train and test model for both the logistic regression model and KNN model as they are essential components in machine learning. 
-Moreover, it helps evaluate the given model performance and further lead to predicting and checking how accurate the data is. 
-The given data was split as 90% of the data was being trained while 10% of the data was tested. The train and test values can be at
-any range but should be added to the value of one.
+The presented work establishes a train and test model for both the logistic regression and K-Nearest Neighbors (KNN) models, which are essential components in machine learning.
+This approach helps evaluate the performance of each model and allows us to predict and assess how accurate the data is.
+The dataset was split so that 90% was used for training while 10% was used for testing. The sum of the training and testing values should always equal one.
 
 Exploration:
 
-• Cleansing the data was the first step by checking if any null values were presented and removing any missing values
-• Converting categorical values like gender, review, category and item to numerical values using 
-  Ordencoder as machine learning cannot work with categorical values like string values.
-• While evaluating the data, a correlation has been studied between the assigned converted numerical values and rating to see the strength of the 
-  relationship between the converted value and rating.
-• Splitting the dataset once for both logistic regression and KNN models which helps as it helps evaluate the performance of the given model.
-• Training the logistic regression model helps further predict the observed value and find the best weights for the regression model
-• In this case, training KNN models is beneficial as labelled data can be expensive and very difficult to obtain.
-  KNN can achieve accurate data with given prediction models
-• The next step after splitting and training the models was to predict the data and figure out the accuracy. The accuracy goes up to the value of 1 meaning
-  there are no errors in the data.
-• Once receiving the accuracy value, tuning the hyper-parameter K in KNN was the next step to check how much the accuracy value has changed. 
-  When tuning the K value in KNN, there was barely any difference with the accuracy value which was just 0.01.
-• The final step was to visualise the data which makes it easier to understand and to highlight common trends.
-  The graph gave a clear representation of the increase in K value(x-axix) led to an increase of errors for the trained model.
-  while the testing model showed that as the K value increases, error decreases and over time the graph begins to flatten out.
+• Cleansing the data was the first step, which involved checking for null values and removing any missing entries.
+• Categorical values such as gender, review, category, and item were converted to numerical values using OrdinalEncoder, since machine learning models cannot process raw string values.
+• While evaluating the data, the correlation between the newly converted numerical features and the target variable rating was studied to understand the strength of these relationships.
+• The dataset was split once for both the logistic regression and KNN models to allow consistent evaluation of performance across both models.
+• Training the logistic regression model helped predict the observed values and find the best-fitting weights for the data.
+• For the KNN model, training was especially useful as it can perform well even when labelled data is limited or costly to obtain. It provided relatively accurate predictions based on the training samples.
+• After training, predictions were made and the accuracy of each model was measured. Accuracy values are bounded between 0 and 1, where 1 indicates perfect accuracy.
+• Tuning the hyperparameter K in the KNN model was the next step. This involved adjusting the number of neighbors used to see how it affected the accuracy. The accuracy only changed by around 0.01, showing minor sensitivity to K value.
+• Finally, the results were visualised. Visualisation helped identify trends and better understand model performance.
+A graph was used to show that as the K value increased, the training error also increased, while the testing error decreased until both began to flatten out, indicating a stabilisation in performance.
 
-Conclusion: WHile analysing and exploring the dataset, it helped figure out and tackle the given tasks with the
-logis regression and KNN model. Furthermore, this lead to the understanding of the predicted data and how accurate it was including after the K in KNN was tuned.
+Conclusion:
 
-
+Through the exploration and analysis of this dataset, the project successfully applied both logistic regression and KNN models to handle the given tasks.
+The exercise deepened understanding of how prediction models behave, especially when adjusting parameters like K in KNN, and demonstrated the value of visualisation in interpreting machine learning outcomes.
