@@ -1,7 +1,6 @@
 🩺 Coronary Heart Disease (CHD) Statistical Analysis & Modelling
 
-Mohammad Shahir Wakili
-Tools: R, R Markdown, ggplot2, dplyr, tidyr, MASS, gridExtra
+Tools: R, R Markdown, ggplot2, dplyr, tidyr, MASS
 
 📘 Project Overview
 
