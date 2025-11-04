@@ -2,7 +2,7 @@
 This project demonstrates my ability to apply structured PMO governance, scope control, resource allocation and delivery discipline across a complex real world project. This case shows tangible impact, quantifiable delivery outcomes and the practical PM skills I bring into a PM / Junior PM / Project Coordinator role.
 
 **Full Supporting PM Documentation (PDF):**  
-[VirtualAgent_ProjectPlan_and_Documentation.pdf](docs/Deliverable4_VirtualAgent_ProjectPlan_and_Documentation.pdf.pdf)
+[VirtualAgent_ProjectPlan_and_Documentation.pdf](Deliverable4_VirtualAgent_ProjectPlan_and_Documentation.pdf.pdf)
 
 ## Updated Project Management Portfolio Case – Virtual Agent Incident Reporting System (PNG)
 
