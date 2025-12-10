@@ -16,7 +16,7 @@ Delivered a Virtual Agent solution to support violent incident reporting in Papu
 - Coordinated resource allocation, optimising team utilisation — D3 critical work represented 78% of total allocated hours (19.5 / 25 hours), ensuring high yield of effort vs time allocation.
 
 ### Delivery Results / Measurable Impact
-- Reduced report processing cycle time by **60%** and	Contributed and improved workflow activities across the project team by supporting structured planning which enhanced project capabilities by over **20%**
+- Reduced report processing cycle time by **60%** and	contributed and improved workflow activities across the project team by supporting structured planning which enhanced project capabilities by over **20%**
 - Workload balanced evenly across team, achieving **30.75 total recorded hours** in D4 with no overload concentration.
 - Feasibility assessed for **30,000+ potential end users** to support future scalability and market need.
 - **100%** on-time completion of scheduled deliverables within resource constraints and without scope slippage.
