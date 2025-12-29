@@ -1,129 +1,77 @@
-📌 Project Overview
+# 🕵️ Fraud Detection Analysis
 
-This project explores fraud detection using transactional data, with the aim of identifying behavioural patterns associated with fraudulent activity. The analysis focuses on understanding class imbalance, engineering meaningful features, and applying statistical modelling techniques to distinguish fraudulent from legitimate transactions.
+## 📌 Project Overview
 
-The workflow follows a structured data science process:
+This project explores fraud detection using transactional data, focusing on identifying behavioural patterns associated with fraudulent activity. The analysis follows a structured data science workflow, including data preprocessing, feature engineering, exploratory analysis, and classification modelling.
 
-- Data preprocessing and feature engineering (Python)
+The objective is to demonstrate practical data analysis and modelling skills using real-world–inspired financial transaction data.
 
-- Exploratory data analysis and class imbalance assessment
+---
 
-- Classification modelling (Logistic Regression & Decision Trees)
+## 🧠 Dataset Overview
 
-- Interpretation of results
+The dataset contains transaction-level records, including:
+- Transaction type  
+- Transaction amount  
+- Sender and recipient account balances (before and after transactions)  
+- Fraud labels indicating fraudulent activity  
 
-- fraud-detection-analysis/
-│
-├── data/
-│   └── cleaned_data.csv
-│
-├── notebooks/
-│   └── fraud_detection_analysis.ipynb
-│
-├── README.md
+The dataset exhibits a strong class imbalance, with fraudulent transactions representing only a small proportion of total observations.
 
-🧠 Dataset Description
+---
 
-The dataset consists of transaction-level financial records, including:
+## 🔧 Data Preprocessing & Feature Engineering
 
-Transaction type
+Data preprocessing was performed in **Python** to improve data quality and analytical reliability. The following steps were applied:
 
-Transaction amount
+- Removal of non-informative identifier variables  
+- Creation of balance change features:
+  - `deltaOrig`: change in the sender’s account balance  
+  - `deltaDest`: change in the recipient’s account balance  
+- Logarithmic transformation of transaction amounts (`log_amount`) to reduce skewness  
+- Selection of key variables relevant to fraud classification  
 
-Sender and recipient account balances (before and after transactions)
+The cleaned dataset was then exported for further analysis.
 
-Fraud labels indicating fraudulent activity
+---
 
-The data simulates real-world mobile money transactions and presents a highly imbalanced classification problem, where fraudulent transactions represent a small minority of observations.
+## 📊 Exploratory Data Analysis
 
-🔧 Data Preprocessing & Feature Engineering
+Exploratory analysis was conducted to understand transaction patterns and class distribution. Results showed a strong class imbalance, with fraudulent transactions occurring primarily within **TRANSFER** and **CASH_OUT** transaction types.
 
-Data preprocessing was performed in Python to ensure data quality and analytical relevance. The following steps were applied:
+This insight informed the modelling approach and feature selection process.
 
-✔ Data Cleaning
+---
 
-Removed non-informative identifier variables (step, nameOrig, nameDest, isFlaggedFraud)
+## 🤖 Modelling Approach
 
-Verified data types and missing values
+Two classification models were applied:
 
-✔ Feature Engineering
+- **Logistic Regression** – for interpretability and statistical inference  
+- **Decision Tree Classifier** – to capture non-linear relationships and feature interactions  
 
-New variables were created to capture transactional behaviour:
+Model performance was evaluated to assess predictive capability and interpretability.
 
-deltaOrig – change in the sender’s account balance
+---
 
-deltaDest – change in the recipient’s account balance
+## 🚀 Future Improvements
 
-log_amount – logarithmic transformation of transaction amount to reduce skewness
+Several enhancements could further improve the robustness and performance of this analysis:
 
-✔ Feature Selection
+- Apply resampling techniques (e.g. SMOTE or undersampling) to address class imbalance  
+- Evaluate additional machine learning models such as Random Forests or Gradient Boosting  
+- Perform hyperparameter tuning to optimise model performance  
+- Incorporate cross-validation for more reliable performance estimation  
+- Explore feature importance and model explainability techniques (e.g. SHAP values)  
+- Develop a simple deployment pipeline for real-time fraud prediction  
 
-Only variables relevant to fraud classification were retained:
+---
 
-type
-
-log_amount
-
-deltaOrig
-
-deltaDest
-
-isFraud
-
-The cleaned dataset was then exported for modelling.
-
-📊 Exploratory Data Analysis
-
-Exploratory analysis revealed a strong class imbalance, with fraudulent transactions representing a small fraction of the dataset. Cross-tabulation of transaction type and fraud status showed that fraudulent activity occurs almost exclusively within TRANSFER and CASH_OUT transaction types.
-
-This insight guided model selection and feature focus during the modelling stage.
-
-🤖 Modelling Approach
-
-Two classification approaches were used:
-
-1. Logistic Regression
-
-Provides interpretable coefficients
-
-Suitable for understanding the impact of explanatory variables
-
-2. Decision Tree Classifier
-
-Captures non-linear relationships
-
-Handles interactions between features effectively
-
-These models were evaluated to compare predictive performance and interpretability.
-
-📈 Key Insights
-
-Fraud is highly concentrated in specific transaction types
-
-Balance change features are strong indicators of fraudulent behaviour
-
-Log-transforming transaction amounts improves model stability
-
-Class imbalance must be considered when evaluating performance
-
-🧰 Tools & Technologies
+## 🧰 Tools & Technologies
 
 - Python (Pandas, NumPy)
-
-- R (for modelling and statistical evaluation)
-
+- R (statistical modelling and evaluation)
 - Jupyter Notebook
-
 - R Markdown
-
 - GitHub
 
-📌 Future Improvements
-
-Address class imbalance using resampling techniques (e.g., SMOTE)
-
-Compare additional machine learning models (Random Forest, XGBoost)
-
-Perform model evaluation using ROC-AUC and precision-recall metrics
-
-Deploy model as a simple prediction API
