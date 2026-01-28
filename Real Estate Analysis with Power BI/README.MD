@@ -1,6 +1,6 @@
 # Real Estate Marketing Analysis - Australia
 
-![Dashboard](/Screenshot%202026-01-28%20232800.png)
+![Dashboard](Dashboard_Image.png)
 
 ## Project Overview
 Business Intelligence analysis of **5,000+ properties** across major Australian cities (Brisbane, Melbourne, Perth, Sydney, Adelaide), providing actionable insights into pricing trends, market segmentation, and investment opportunities.
