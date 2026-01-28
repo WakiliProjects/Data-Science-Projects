@@ -1,0 +1,330 @@
+---
+title: "Fraud Detection Statistical Analysis"
+author: "Shahir Wakili"
+date: "`r Sys.Date()`"
+output:
+  pdf_document:
+    toc: true
+    toc_depth: '2'
+  html_document:
+    toc: true
+    toc_depth: 2
+    number_sections: true
+editor_options: 
+  markdown: 
+    wrap: sentence
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, fig.align = "center", fig.width = 7, fig.height = 5)
+```
+
+```{r}
+library(readr)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(GGally)
+library(caret)
+library(car)
+library(pROC)
+library(rpart)
+library(rpart.plot)
+
+
+```
+
+\newpage
+
+# 1. Introduction
+
+Fraud detection is a critical task in financial systems due to the high financial and reputational costs associated with fraudulent transactions.
+This analysis uses simulated mobile money transaction data to identify behavioural patterns associated with fraud.
+
+From a statistical perspective, the key challenge is **class imbalance**, where fraudulent transactions represent only a small proportion of all observations.
+To address this, two complementary classification approaches are employed:
+
+-   **Logistic regression**, which provides interpretable parameter estimates and statistical inference.
+-   **Decision tree modelling**, which captures non-linear relationships and interaction effects that may not be well represented in parametric models.
+
+## Data Overview and Preprocessing
+
+The dataset consists of transaction-level records, including transaction type, transaction amount, and account balance information before and after each transaction. These variables provide a foundation for modelling transactional behaviour associated with fraudulent activity.
+
+Prior to analysis, data preprocessing and feature engineering were performed using **Python** to improve data quality and analytical usefulness. This process included the following steps:
+
+- Removing non-informative identifier variables that do not contribute to predictive modelling.
+- Creating new features to better capture transactional behaviour:
+  - **`deltaOrig`**, representing the change in the sender’s account balance.
+  - **`deltaDest`**, representing the change in the recipient’s account balance.
+- Applying a logarithmic transformation to transaction amounts (**`log_amount`**) to reduce skewness and stabilise variance.
+- Selecting a subset of relevant variables to support effective model training and interpretation.
+
+After preprocessing, the cleaned dataset was exported and imported into **R** for further statistical analysis and model development.
+
+
+## 2.1 Load and Inspect Data
+
+```{r load-data}
+df <- read_csv("cleaned_data.csv")
+
+head(df)
+
+summary(df)
+
+```
+
+**Statistical purpose:**\
+Initial inspection enables verification of variable types, identification of missing values, and detection of data quality issues.
+Summary statistics reveal strong skewness and scale differences, which are particularly relevant for fraud detection, as fraudulent transactions often exhibit extreme values and non-typical transaction behaviour that can influence model performance.
+
+## 2.2 Variable Transformation
+
+```{r variable-transformation, echo=TRUE}
+df$isFraud <- factor(df$isFraud, levels = c(0, 1))
+df$type <- factor(df$type)
+
+df$nameOrig <- NULL
+df$nameDest <- NULL
+```
+
+**Statistical purpose:**\
+- The response variable (`isFraud`) is converted to a factor to enable classification modelling.
+ - Transaction type is treated as a categorical predictor.
+ - Identifier variables (`nameOrig`, `nameDest`) are removed because they do not carry predictive or statistical meaning and would introduce noise and overfitting.
+
+The proportion of fraudulent transactions is examined to quantify class imbalance.
+
+```{r fraud-proportion}
+prop.table(table(df$isFraud))
+```
+
+**Interpretation:** The proportion table shows that fraudulent transactions account for approximately 0.13% of all observations, confirming a severe class imbalance.
+This imbalance is characteristic of real-world fraud detection problems and necessitates the use of evaluation metrics such as sensitivity, precision, and AUC rather than overall accuracy.
+
+# 3. Feature Engineering
+
+
+```{r fraud-by-type}
+table(df$type, df$isFraud)
+```
+
+Fraud is observed exclusively within the TRANSFER and CASH_OUT transaction types, while no fraudulent activity is recorded for CASH_IN, PAYMENT, or DEBIT transactions.
+This indicates that fraudulent behaviour in the dataset is concentrated in transactions involving the movement or withdrawal of funds.
+As a result, transaction type serves as a strong discriminative feature and justifies restricting subsequent analysis to these categories to improve model focus and performance.
+
+```{r restrict-types}
+df_stat <- df %>%
+  filter(type %in% c("TRANSFER", "CASH_OUT")) %>%
+  droplevels()
+```
+
+```{r}
+table(df_stat$type, df_stat$isFraud)
+
+```
+
+**Statistical justification:**\
+Including transaction types with zero recorded fraud can distort model estimation and artificially inflate classification accuracy without improving fraud detection capability.
+Therefore, the analysis is restricted to *TRANSFER* and *CASH_OUT* transactions, where fraudulent activity is observed, allowing the model to focus on meaningful discriminatory patterns.
+
+# 4. Exploratory Data Analysis
+
+## 4.1 Transaction Amount by Fraud Status
+
+```{r boxplot-amount}
+ggplot(df_stat, aes(x = isFraud, y = log_amount)) +
+  geom_boxplot(fill = "lightblue") +
+  labs(
+    x = "Fraud (0 = No, 1 = Yes)",
+    y = "Log(Transaction Amount)",
+    title = "Transaction Amount by Fraud Status"
+  ) +
+  theme_minimal()
+```
+
+**Statistical insight:**\
+This comparison highlights distributional differences between fraudulent and legitimate transactions, fwraudulent transactions tend to involve higher transaction amounts and greater variability than non-fraudulent ones, indicating that transaction magnitude is a relevant predictor of fraud risk.
+
+## 4.2 Pairwise Relationships
+
+```{r pairwise-plots}
+set.seed(1)
+df1 <- df_stat %>%
+  sample_n(3000) %>%
+  select(log_amount, deltaOrig, deltaDest)
+
+ggpairs(df1, alpha = 0.4)
+```
+
+**Statistical purpose:**\
+Pairwise correlations show weak to moderate relationships between predictors, with correlations of approximately 0.13 (log_amount–deltaOrig), 0.46 (log_amount–deltaDest), and 0.23 (deltaOrig–deltaDest).
+These values indicate limited multicollinearity and support the inclusion of all engineered features in the model.
+
+# 5. Train–Test Split
+
+To evaluate model performance objectively, the dataset was partitioned into training and testing subsets using an 80–20 split.
+Stratified sampling was applied to preserve the original class distribution of the target variable (isFraud), ensuring that the severe class imbalance was consistently represented in both subsets.
+This approach reduces sampling bias and enables a more reliable assessment of model generalisation performance.
+Factor levels were also adjusted post-split to prevent unused categories from affecting model estimation.
+This separation ensures that model training and evaluation are conducted on independent data, providing an unbiased estimate of predictive performance.
+
+```{r train-test-split, echo = TRUE}
+set.seed(42)
+idx <- createDataPartition(df_stat$isFraud, p = 0.8, list = FALSE)
+train <- df_stat[idx, ]
+test <- df_stat[-idx, ]
+
+train$type <- droplevels(train$type)
+test$type <- droplevels(test$type)
+
+```
+
+# 6. Logistic Regression Model
+
+```{r logistic-regression}
+if (nlevels(train$type) >= 2) {
+  logit <- glm(
+    isFraud ~ type + log_amount + deltaOrig + deltaDest,
+    data = train,
+    family = binomial
+  )
+} else {
+  logit <- glm(
+    isFraud ~ log_amount + deltaOrig + deltaDest,
+    data = train,
+    family = binomial
+  )
+}  
+
+summary(logit)
+vif(logit)
+```
+
+**Logistic Regression Model Diagnostics:**\
+All predictors in the logistic regression model are statistically significant (p \< 0.001), indicating that each variable contributes meaningfully to fraud prediction.
+The model achieves an AIC value of 41,213, reflecting a strong balance between model fit and complexity given the large sample size.
+
+Variance Inflation Factor (VIF) values range from 1.09 to 3.01, which are well below commonly accepted thresholds (VIF \< 5), indicating no evidence of problematic multicollinearity among predictors.
+This confirms that the engineered features provide independent information and that coefficient estimates are stable and reliable.
+
+## 6.1 Logistic Regression Performance
+
+```{r logistic-performance}
+prob_glm <- predict(logit, test, type = "response")
+pred_glm <- ifelse(prob_glm > 0.5, "1", "0") |> factor(levels = c("0", "1"))
+cm_glm <- confusionMatrix(pred_glm, test$isFraud, positive = "1")
+
+cm_glm
+```
+
+**Logistic Regression Performance Interpretation:**\
+The model achieves an overall accuracy of 99.8%; however, given the extreme class imbalance, accuracy alone is not a reliable performance measure.
+The balanced accuracy of 0.71 provides a more meaningful assessment, indicating reasonable performance across both fraudulent and non-fraudulent classes.
+
+The model achieves a sensitivity of 0.42, meaning approximately 42% of fraudulent transactions are correctly identified.
+While this reflects moderate detection capability, it is expected in highly imbalanced fraud detection problems.
+
+Specificity is very high (0.9997), indicating that legitimate transactions are almost always correctly classified.
+This contributes to a strong positive predictive value (0.82), meaning that when the model predicts fraud, it is correct in most cases.
+
+## 6.2 Logistic ROC Curve
+
+```{r ROC-Interp, echo=TRUE}
+roc_glm <- roc(test$isFraud, prob_glm)
+auc_glm <- auc(roc_glm)
+
+plot(roc_glm, print.auc = TRUE)
+```
+
+**ROC Curve Interpretation:**\
+The ROC curve demonstrates strong discriminatory performance, with an Area Under the Curve (AUC) of 0.974.
+This indicates that the model has a very high ability to distinguish between fraudulent and non-fraudulent transactions across all classification thresholds.
+
+# 7. Decision Tree Model
+
+```{r decision-tree}
+tree <- rpart(
+  isFraud ~ log_amount + deltaOrig + deltaDest,
+  data = train,
+  method = "class",
+  control = rpart.control(maxdepth = 5, cp = 0.001)
+)
+
+rpart.plot(tree)
+```
+
+**Statistical motivation:**\
+The decision tree identifies balance change variables as the primary drivers of fraud detection, with large reductions in the origin account balance strongly associated with fraudulent transactions.
+Several terminal nodes exhibit high predicted fraud probabilities (exceeding 90%), indicating strong model confidence when extreme balance movements occur.
+In contrast, transactions with minimal balance changes are consistently classified as legitimate.
+This demonstrates the model’s ability to capture non-linear threshold effects that are not well represented by linear models, making it particularly effective for identifying high-risk transaction patterns in highly imbalanced fraud data.
+
+## 7.1 Decision Tree Performance
+
+```{r tree-performance}
+prob_tree <- predict(tree, test, type = "prob")[, "1"]
+pred_tree <- ifelse(prob_tree > 0.5, "1", "0") |> factor(levels = c("0", "1"))
+cm_tree <- confusionMatrix(pred_tree, test$isFraud, positive = "1")
+
+cm_tree
+```
+
+Decision Tree Performance
+
+The decision tree achieved a high overall accuracy of 99.86%, with a balanced accuracy of 0.79, indicating improved performance across both classes compared to the logistic model.
+The model demonstrates strong fraud detection capability, with a sensitivity of 0.58 and a high precision of 0.89, meaning most flagged transactions are truly fraudulent.
+Specificity remains very high (0.9998), showing minimal false positives.
+Overall, the decision tree provides stronger detection of fraudulent activity while maintaining reliable classification performance.
+
+## 7.2 Decision Tree ROC Curve
+
+```{r tree-roc}
+roc_tree <- roc(test$isFraud, prob_tree)
+auc_tree <- auc(roc_tree)
+
+plot(roc_tree, print.auc = TRUE)
+```
+
+Decision Tree ROC Curve Interpretation
+
+The decision tree achieves an AUC of 0.859, indicating strong discriminatory ability.
+Although slightly lower than the logistic regression model, it effectively captures non-linear fraud patterns and provides meaningful classification performance.
+
+# 8. Performance Comparison of Classification Models
+
+```{r model-comparison}
+comparison <- data.frame(
+  Model = c("Logistic Regression", "Decision Tree"),
+  AUC = c(as.numeric(auc_glm), as.numeric(auc_tree)),
+  Sensitivity = c(cm_glm$byClass["Sensitivity"], cm_tree$byClass["Sensitivity"]),
+  Specificity = c(cm_glm$byClass["Specificity"], cm_tree$byClass["Specificity"]),
+  Precision = c(cm_glm$byClass["Pos Pred Value"], cm_tree$byClass["Pos Pred Value"]),
+  Balanced_Accuracy = c(
+    cm_glm$byClass["Balanced Accuracy"],
+    cm_tree$byClass["Balanced Accuracy"]
+  )
+)
+
+comparison
+```
+
+**Comparative Model Evaluation:**\
+The logistic regression model achieves a higher AUC (0.974), indicating stronger overall discrimination between fraudulent and non-fraudulent transactions.
+However, the decision tree demonstrates superior sensitivity (0.58 vs 0.42) and balanced accuracy (0.79 vs 0.71), indicating better performance in identifying fraudulent cases under class imbalance.
+Both models exhibit very high specificity (\>0.99), meaning legitimate transactions are rarely misclassified.
+
+Overall, while logistic regression provides stronger global ranking performance, the decision tree offers improved fraud detection capability and more balanced classification, making it more suitable when identifying fraudulent transactions is the primary objective.
+
+# 9. Conclusion
+
+This analysis explored fraud detection using both logistic regression and decision tree models on transactional data characterised by significant class imbalance.
+Through feature engineering, particularly the use of balance change variables and log-transformed transaction amounts, meaningful patterns associated with fraudulent behaviour were successfully captured.
+Exploratory analysis demonstrated that fraud is strongly concentrated in specific transaction types and is associated with large, abnormal balance movements.
+
+Model evaluation showed that while logistic regression achieved superior overall discrimination (AUC = 0.974), the decision tree provided stronger performance in identifying fraudulent transactions, as reflected by its higher sensitivity and balanced accuracy.
+This highlights an important trade-off between global predictive performance and effective fraud detection in imbalanced datasets.
+The decision tree’s ability to model non-linear relationships and capture threshold-based risk patterns makes it particularly valuable in operational fraud detection contexts.
+
+Overall, the results demonstrate that combining interpretable statistical models with flexible machine learning approaches provides a robust framework for fraud detection.
+Future work could explore threshold optimisation, cost-sensitive learning, or ensemble methods to further improve detection performance while minimising false positives.
