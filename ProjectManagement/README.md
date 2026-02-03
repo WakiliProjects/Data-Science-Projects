@@ -4,6 +4,9 @@ This project demonstrates my ability to apply structured PMO governance, scope c
 **Full Supporting PM Documentation (PDF):**  
 [VirtualAgent_ProjectPlan_and_Documentation.pdf](Deliverable_VirtualAgent_ProjectPlan_and_Documentation.pdf)
 
+**Virtual Assistant
+[Virtual Assistant Prevention of Deadly Violence](https://copilotstudio.microsoft.com/environments/Default-70ce6364-4f89-42dc-ab2d-30a1e2bf3d48/bots/cr1e8_copilot/canvas?__version__=2&enableFileAttachment=false)
+
 ## Updated Project Management Portfolio Case – Virtual Agent Incident Reporting System (PNG)
 
 ### Project Overview
